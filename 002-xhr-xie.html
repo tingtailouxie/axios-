@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>XHR对axios的封装-xie</title>
+</head>
+<body>
+        <button onclick="testGet()">发送GET请求</button><br/>
+        <button onclick="testPost()">发送POST请求</button><br/>
+        <button onclick="testPut()">发送PUT请求</button><br/>
+        <button onclick="testDelete()">发送Delete请求</button><br/>
+
+
+    <script>
+       //xhr封装axios 
+       function axios({
+           url,
+           method = 'GET',
+           data   = {},
+           params = {}
+       }){
+        //    返回promise实例
+        return new promise((resolve,reject)=>{
+
+            // 整理请求方式的格式
+            method = method.toUpperCase()
+
+            // 将parmas的格式转换为urlencoded格式
+            let queryString = ''
+            Objext.keys(params).forEach(key=>{
+               queryString += `${key} = ${parmas[key]}&`
+            })
+            if(queryString){
+                queryString = queryString.substring(0,queryString.length-1)
+                url += '?' + queryString
+            }
+
+            //执行异步操作
+            //1、 创建xhr
+            const request = new XMLHttpRequest()
+            // 2 、打开连接
+            request.open(method,url,true)
+    
+            //3 、 发送请求
+            if(method === 'GET' || method === 'DELETE'){
+                request.send()
+            } else if (method === 'POST' || method === 'PUT') {
+                request.setRequestHeader('Content-type','application/json;charset=utf-8')
+                request.send(JSON.stringify(data))
+            }
+            // 4、绑定改变状态的监听
+            request.onreadystatechange = function(){
+                if( request.readyState !== 4){
+                    return
+                }
+                const { status,statusText } = request
+                if( status >= 200 && status <= 299){
+                    const response = {
+                        data:JSON.prase(requset.response),
+                        status,
+                        statusText
+                    }
+                    resolve(response)
+                } else {
+                    reject(new Error(`出现错误,状态码为${status}`))
+                }
+            }
+         })
+       }
+
+    </script>
+</body>
+</html>
